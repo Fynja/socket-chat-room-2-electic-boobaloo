@@ -22,7 +22,7 @@ print('Attempting to connect')
 ClientSocket.connect((host, port))
 ###############################################################################
 #receive thread to get messages without being blocked
-threading._start_new_thread(receive, (key))
+threading._start_new_thread(receive, (key, ))
 #this loop gets user input and sends it to the server with the username appended
 while True:
     Input = input()

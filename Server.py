@@ -4,7 +4,6 @@ import threading
 #when a new connection is established this function is run on a new thread
 #it waits for information to be received from a client then calls msg_all_clients to pass that information to other clients
 def threaded_client(connection):
-    connection.send(str.encode("Welcome to the Server\n"))
     while True:
         data = connection.recv(2048)
         if not data:
@@ -47,6 +46,5 @@ while True:
     print("Thread Number: {0}".format(ThreadCount))
     print("Clients:\n", clients)
     #message all clients saying a new client has connected:
-    msg_all_clients("New client has connected")
 
 ServerSocket.close()

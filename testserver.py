@@ -2,8 +2,8 @@ import socket
 import threading
 
 ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = '127.0.0.1'
-port = 25565
+host = '0.0.0.0'
+port = int(input("Port number for hosting: "))
 ThreadCount = 0
 ServerSocket.bind((host, port))
 print("Waiting for a Connection..")
@@ -13,10 +13,9 @@ def threaded_client(connection):
     connection.send(str.encode("Welcome to the Server\n"))
     while True:
         data = connection.recv(2048)
-        reply = 'Server Says: ' + data.decode('utf-8')
         if not data:
             break
-        msg_all_clients(reply)
+        msg_all_clients(data.decode("utf-8"))
     connection.close()
 
 def msg_all_clients(msg):

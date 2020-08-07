@@ -18,8 +18,9 @@ username = input("Username: ")
 key = input("Enter obscurity key: ")
 #setup connection to host 
 ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print('Attempting to connect')
+print("Attempting to connect")
 ClientSocket.connect((host, port))
+print("Connected")
 ###############################################################################
 #receive thread to get messages without being blocked
 threading._start_new_thread(receive, (key, ))

@@ -27,7 +27,7 @@ def msg_all_clients(msg):
 #set up server:
 ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = '0.0.0.0'
-port = int(input("Port number for hosting: "))
+key = input("Enter obscurity key: ")
 ServerSocket.bind((host, port))
 #listen for a connection:
 print("Waiting for a Connection..")

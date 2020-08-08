@@ -5,11 +5,13 @@ import pickle
 ###############################################################################
 #when a new connection is established this function is run on a new thread
 #it waits for information to be received from a client then calls msg_all_clients to pass that information to other clients
-def threaded_client(connection):
-    global log
-    for i in log:
-        connection.send(str.encode(i))
-        time.sleep(0.05)
+def threaded_client(connection, log):
+    #send log file to client upon connection
+    file = pickle.dumps(log)
+    HEADERSIZE = 10
+    file = bytes(f'{len(file):<{HEADERSIZE}}', "utf-8") + file
+    connection.send(file)
+    #normal messaging:
     while True:
         try:
             data = connection.recv(2048)
@@ -75,7 +77,7 @@ ThreadCount = 0
 while True:
     #accept new connection and create thread for new client:
     Client, address = ServerSocket.accept()
-    threading._start_new_thread(threaded_client, (Client, ))
+    threading._start_new_thread(threaded_client, (Client, log))
     #adjust variables:
     clients.append(Client)
     ThreadCount += 1

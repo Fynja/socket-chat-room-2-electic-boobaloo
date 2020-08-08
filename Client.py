@@ -9,7 +9,7 @@ def receive(key):
         msg = ClientSocket.recv(2048)      
         msg = msg.decode("utf-8")
         msg = decode(key, msg)
-        print("\n", msg)
+        print(msg)
 ###############################################################################
 #input for host ip, port and user's username
 host = input("Enter server IP: ")
@@ -27,7 +27,7 @@ threading._start_new_thread(receive, (key, ))
 #this loop gets user input and sends it to the server with the username appended
 while True:
     Input = input()
-    msg = "{0} said: {1}".format(username,Input)
+    msg = "{0} said: {1} \n".format(username,Input)
     msg = encode(key, msg)
     ClientSocket.send(str.encode(msg))
 ClientSocket.close()

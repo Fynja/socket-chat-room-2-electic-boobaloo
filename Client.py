@@ -22,6 +22,8 @@ port = int(input("Enter server port: "))
 username = input("Username: ")
 key = input("Enter encryption key: ")
 key = bytes(key, "utf-8")
+salt = input("Enter salt: ")
+salt = bytes(salt, "utf-8")
 #setup connection to host
 ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Attempting to connect")
@@ -29,7 +31,6 @@ ClientSocket.connect((host, port))
 print("Connected")
 ###############################################################################
 #set up encryption:
-salt = b'D;\x94\xf8\xd1\x1baV\x91m\n\xb0E\x04E\xa0' #make this not hard coded later!!!!
 kdf = PBKDF2HMAC(
      algorithm=hashes.SHA256(),
      length=32,

@@ -47,7 +47,7 @@ def msg_all_clients(msg):
 ###############################################################################
 def savelog(log):
     while True:
-        with open("file", 'wb') as f:
+        with open("Server.log", 'wb') as f:
             pickle.dump(log, f)
         time.sleep(10)
 ###############################################################################
@@ -56,8 +56,14 @@ ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = '0.0.0.0'
 port = int(input("Port number for hosting: "))
 ServerSocket.bind((host, port))
-with open('file','rb') as f:
-    log = pickle.load(f)
+
+try:
+    with open('Server.log','rb') as f:
+        log = pickle.load(f)
+except:
+    print("Log file not found, a new one will be created")
+    log = []
+    
 threading._start_new_thread(savelog, (log, ))
 #listen for a connection:
 print("Waiting for a Connection..")

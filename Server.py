@@ -5,7 +5,11 @@ import threading
 #it waits for information to be received from a client then calls msg_all_clients to pass that information to other clients
 def threaded_client(connection):
     while True:
-        data = connection.recv(2048)
+        try:
+         data = connection.recv(2048)
+        except Exception as e:
+            print(e)
+            exit()
         if not data:
             break
         msg_all_clients(data.decode("utf-8"))
@@ -15,13 +19,24 @@ def threaded_client(connection):
 #will also remove any clients it was unable to send a message to
 def msg_all_clients(msg):
     global clients
-    for clientID in range(len(clients)):
+    clientID = 0
+    while clientID < len(clients):
         try:
-            clients[clientID].sendall(str.encode(msg))
-        except:
-            print("could not send data to {0} it is likely they are no longer present on the network".format(clients[clientID]))
-            print("removing problematic client")
-            clients.pop(clientID)
+            clients[clientID].send(str.encode(msg))
+        except Exception as e:
+            print("===================================")
+            print("Could not send data to clientID {0} it is likely they are no longer present on the network".format(clientID))
+            print("Exception Info: ", e)
+            try:
+                print("Attempting to remove problematic client information")
+                clients.pop(clientID)
+                print("Client information removed")
+                clientID -= 1
+            except Exception as e:
+                print("Could not remove client information for the following reason:")
+                print(e)
+            print("===================================")
+        clientID += 1
 ###############################################################################
 #set up server:
 ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,9 +57,11 @@ while True:
     clients.append(Client)
     ThreadCount += 1
     #print information to console:
-    print("Connected to: {0} : {1}".format(address[0], address[1]))
+    print("New connection from: {0} : {1}".format(address[0], address[1]))
     print("Thread Number: {0}".format(ThreadCount))
-    print("Clients:\n", clients)
-    #message all clients saying a new client has connected:
+    print("Clients:")
+    for c in clients:
+        print(c)
+    print("===================================")
 
 ServerSocket.close()

@@ -46,7 +46,7 @@ kdf = PBKDF2HMAC(
      backend=default_backend()
  )
 key = base64.urlsafe_b64encode(kdf.derive(password))
-print("{0}**********************************".format(key[:10].decode("utf-8")))
+print("{0}**********************************".format(key[:10].decode("utf-8"))) #print first 10 digits of key
 f = Fernet(key)
 #receive files from server upon connection:
 #this code is for accepting the log file from the server, which is supplied on joining
@@ -71,14 +71,12 @@ for i in logs:
         print("DECRYPTION OF A MESSAGE FAILED!")
         trustkey = False
     print(i.decode("utf-8"))
-
-
 #normal message send/receive:
 #receive thread to get messages without being blocked
 threading._start_new_thread(receive, ())
 #this loop gets user input and sends it to the server with the username appended
 while True:
-    if trustkey == True:
+    if trustkey == True: #if someone accidentally enters the wrong passwod and/or salt then it will be detected and they will be asked not to send messages to the server
         Input = input()
         msg = "{0} said: {1} \n".format(username,Input)
         msg = f.encrypt(bytes(msg, "utf-8"))

@@ -8,7 +8,7 @@ def threaded_client(connection):
     global log
     for i in log:
         connection.send(str.encode(i))
-        time.sleep(0.05)
+        time.sleep(0.1)
     while True:
         try:
             data = connection.recv(2048)

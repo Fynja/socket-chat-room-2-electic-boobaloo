@@ -3,6 +3,7 @@ import threading
 import pickle
 import base64
 import os
+import time
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -21,7 +22,7 @@ def receive():
             print("either you have the wrong password and/or salt, or someone else is messaging using the wrong password and/or salt")
 
 ###############################################################################
-#input for host ip, port and user's username
+#set up all the required user defined variables:
 host = input("Enter server IP: ")
 port = int(input("Enter server port: "))
 username = input("Username: ")
@@ -34,6 +35,7 @@ ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Attempting to connect")
 ClientSocket.connect((host, port))
 print("Connected")
+trustkey = True #will be switched to false if any errors with decryption are detected, this is to prevent a user accidentally filling a servers log with messages that use the wrong key
 ###############################################################################
 #set up encryption:
 kdf = PBKDF2HMAC(
@@ -61,23 +63,29 @@ while True:
         logs = pickle.loads(full_msg[HEADERSIZE:])
         break
 #print logs to terminal:
-try:
-    for i in logs:
-        i = bytes(i, "utf-8")
+for i in logs:
+    i = bytes(i, "utf-8")
+    try:
         i = f.decrypt(i)
-        print(i.decode("utf-8"))
-except Exception as e:
-    print(e)
-    print("FAILED TO DECRYPT MESSAGE LOG")
-    print("Make sure you are using the correct pass+salt!")
+    except:
+        print("DECRYPTION OF A MESSAGE FAILED!")
+        trustkey = False
+    print(i.decode("utf-8"))
+
 
 #normal message send/receive:
 #receive thread to get messages without being blocked
 threading._start_new_thread(receive, ())
 #this loop gets user input and sends it to the server with the username appended
 while True:
-    Input = input()
-    msg = "{0} said: {1} \n".format(username,Input)
-    msg = f.encrypt(bytes(msg, "utf-8"))
-    ClientSocket.send(msg)
+    if trustkey == True:
+        Input = input()
+        msg = "{0} said: {1} \n".format(username,Input)
+        msg = f.encrypt(bytes(msg, "utf-8"))
+        ClientSocket.send(msg)
+    else:
+        print("It was detected that you had an error decrypting a message from this server")
+        print("for this reason you cannot send any messages to the server to prevent it being flooded with gibberish")
+        print("restart your client and check your password and salt")
+        time.sleep(6000)
 ClientSocket.close()

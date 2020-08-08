@@ -12,16 +12,21 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 def receive():
     while True:
         msg = ClientSocket.recv(2048)
-        msg = f.decrypt(msg)
-        msg = msg.decode("utf-8")
-        print(msg)
+        try:
+            msg = f.decrypt(msg)
+            msg = msg.decode("utf-8")
+            print(msg)
+        except:
+            print("failed to a decrypt message!")
+            print("either you have the wrong password and salt, or someone else is messaging using the wrong password or salt")
+
 ###############################################################################
 #input for host ip, port and user's username
 host = input("Enter server IP: ")
 port = int(input("Enter server port: "))
 username = input("Username: ")
-key = input("Enter encryption key: ")
-key = bytes(key, "utf-8")
+password = input("Enter encryption password: ")
+password = bytes(password, "utf-8")
 salt = input("Enter salt: ")
 salt = bytes(salt, "utf-8")
 #setup connection to host
@@ -38,7 +43,7 @@ kdf = PBKDF2HMAC(
      iterations=100000,
      backend=default_backend()
  )
-key = base64.urlsafe_b64encode(kdf.derive(key))
+key = base64.urlsafe_b64encode(kdf.derive(password))
 print("key: ", key)
 f = Fernet(key)
 #receive files from server upon connection:
@@ -56,10 +61,15 @@ while True:
         logs = pickle.loads(full_msg[HEADERSIZE:])
         break
 #print logs to terminal:
-for i in logs:
-    i = bytes(i, "utf-8")
-    i = f.decrypt(i)
-    print(i.decode("utf-8"))
+try:
+    for i in logs:
+        i = bytes(i, "utf-8")
+        i = f.decrypt(i)
+        print(i.decode("utf-8"))
+except Exception as e:
+    print(e)
+    print("FAILED TO DECRYPT MESSAGE LOG")
+    print("Make sure you are using the correct pass+salt!")
 
 #normal message send/receive:
 #receive thread to get messages without being blocked

@@ -89,7 +89,7 @@ for i in logs:
     print(i.decode("utf-8"))
 
 window = tk.Tk()
-label = tk.Label(text="Enter something:")
+label = tk.Label(text="Send message:")
 entry = tk.Entry(width=256)
 threading._start_new_thread(receive, ())
 label.pack()

@@ -6,7 +6,7 @@ from encodedecode import decode
 #receives data from server and prints on screen
 def receive(key):
     while True:
-        msg = ClientSocket.recv(1024)      
+        msg = ClientSocket.recv(2048)      
         msg = msg.decode("utf-8")
         msg = decode(key, msg)
         print("\n", msg)

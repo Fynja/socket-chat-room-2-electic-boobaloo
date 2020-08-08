@@ -49,6 +49,7 @@ def savelog(log):
     while True:
         with open("Server.log", 'wb') as f:
             pickle.dump(log, f)
+        print("Log saved to Local file.")
         time.sleep(10)
 ###############################################################################
 #set up server:

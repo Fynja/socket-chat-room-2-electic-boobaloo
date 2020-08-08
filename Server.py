@@ -1,12 +1,18 @@
 import socket
 import threading
+import time
 ###############################################################################
 #when a new connection is established this function is run on a new thread
 #it waits for information to be received from a client then calls msg_all_clients to pass that information to other clients
 def threaded_client(connection):
+    global log
+    for i in log:
+        connection.send(str.encode(i))
+        time.sleep(0.05)
     while True:
         try:
-         data = connection.recv(2048)
+            data = connection.recv(2048)
+            log.append(data.decode("utf-8"))
         except Exception as e:
             print(e)
             exit()
@@ -49,6 +55,7 @@ ServerSocket.listen(5)
 #define some variables
 clients = []
 ThreadCount = 0
+log = []
 while True:
     #accept new connection and create thread for new client:
     Client, address = ServerSocket.accept()

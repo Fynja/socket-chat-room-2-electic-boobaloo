@@ -18,7 +18,7 @@ def receive():
             print(msg)
         except:
             print("failed to a decrypt message!")
-            print("either you have the wrong password and salt, or someone else is messaging using the wrong password or salt")
+            print("either you have the wrong password and/or salt, or someone else is messaging using the wrong password and/or salt")
 
 ###############################################################################
 #input for host ip, port and user's username
@@ -44,7 +44,7 @@ kdf = PBKDF2HMAC(
      backend=default_backend()
  )
 key = base64.urlsafe_b64encode(kdf.derive(password))
-print("key: ", key)
+print("{0}**********************************".format(key[:10].decode("utf-8")))
 f = Fernet(key)
 #receive files from server upon connection:
 #this code is for accepting the log file from the server, which is supplied on joining

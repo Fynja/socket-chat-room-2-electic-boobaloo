@@ -10,7 +10,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 ###############################################################################
-#receives data from server and prints on screen
+#receives data from server, decrypts it, and prints on screen
 def receive():
     while True:
         msg = ClientSocket.recv(2048)
@@ -19,10 +19,9 @@ def receive():
             msg = msg.decode("utf-8")
             print(msg)
         except:
-            print("failed to a decrypt message!")
-            print("either you have the wrong password and/or salt, or someone else is messaging using the wrong password and/or salt")
-
+            print("Failed to a decrypt message.")
 ###############################################################################
+#takes input from tkinter entry widgit then encrypts and sends to server
 def send(e):
     global trustkey
     if trustkey == True: #if someone accidentally enters the wrong passwod and/or salt then it will be detected and they will be asked not to send messages to the server
@@ -32,11 +31,11 @@ def send(e):
         ClientSocket.send(msg)
         e.widget.delete(0, tk.END)
     else:
-        print("It was detected that you had an error decrypting a message from this server")
-        print("for this reason you cannot send any messages to the server to prevent it being flooded with gibberish")
-        print("restart your client and check your password and salt")
-        time.sleep(6000)
-
+        print("It was detected that you had an error decrypting a message from this server.")
+        print("For this reason you cannot send any messages to the server to prevent it being flooded with gibberish.")
+        print("Restart your client and check your password and salt.")
+        time.sleep(60)
+        exit()
 ###############################################################################
 #set up all the required user defined variables:
 host = input("Enter server IP: ")
@@ -49,9 +48,15 @@ salt = bytes(salt, "utf-8")
 #setup connection to host
 ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Attempting to connect")
-ClientSocket.connect((host, port))
-print("Connected")
-trustkey = True #will be switched to false if any errors with decryption are detected, this is to prevent a user accidentally filling a servers log with messages that use the wrong key
+try:
+    ClientSocket.connect((host, port))
+    print("Connected")
+except Exception as e:
+    print("Could not connect to server for the following reason:")
+    print(e)
+    time.sleep(60)
+    exit()
+trustkey = True #will be switched to false if any errors with decryption are detected during the reading of logs, this is to prevent a user accidentally filling a servers log with messages that use the wrong key
 ###############################################################################
 #set up encryption:
 kdf = PBKDF2HMAC(
@@ -62,7 +67,7 @@ kdf = PBKDF2HMAC(
      backend=default_backend()
  )
 key = base64.urlsafe_b64encode(kdf.derive(password))
-print("{0}**********************************".format(key[:10].decode("utf-8"))) #print first 10 digits of key
+print(key.decode("utf-8")) #print key (this is not a great idea, but considering the user enters the password and salt as plaintext its not going to make much of a difference if someone is spying on their screen)
 f = Fernet(key)
 #receive files from server upon connection:
 #this code is for accepting the log file from the server, which is supplied on joining
@@ -84,7 +89,7 @@ for i in logs:
     try:
         i = f.decrypt(i)
     except:
-        print("DECRYPTION OF A MESSAGE FAILED!")
+        print("Failed to decrypt a message.")
         trustkey = False
     print(i.decode("utf-8"))
 
